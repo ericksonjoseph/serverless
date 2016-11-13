@@ -1,10 +1,8 @@
 
 'use strict';
 
+const aws = require('aws-sdk');
 const config = require('./config.js');
-const nodemailer = require('nodemailer');
-const directTransport = require('nodemailer-direct-transport');
-
 
 /**
  * Sends Emails
@@ -13,6 +11,9 @@ const directTransport = require('nodemailer-direct-transport');
  * @var callback - called after all emails have been sent
  */
 exports.sendEmails = (emails, callback) => {
+
+    aws.config.update({region: 'us-east-1'});
+    let ses = new aws.SES();
 
     // Get Recipients
     let recipients = {};
@@ -26,27 +27,27 @@ exports.sendEmails = (emails, callback) => {
         return;
     }
 
-    // Configure mailer
-    let transporter = nodemailer.createTransport({
-        service: config.transport,
-        auth: {
-            user: config.email,
-        pass: config.password
-        }
-    });
-    //let transporter = nodemailer.createTransport(directTransport({debug: true}));
-
-    // Send Emails
     for (let prop in recipients) {
-
-        var settings = {
-            to: prop,
-            subject: config.mailer.subject,
-            html: '<h2>' + config.mailer.note + '</h2><ul>' + recipients[prop] + '</ul>',
-            from: '"' + config.mailer.subject + ' <' + config.email + '>'
+        var params = {
+            Destination: { 
+                 ToAddresses: [
+                     prop,
+                 ]
+            },
+            Message: {
+                 Body: {
+                     Html: {
+                           Data: recipients[prop],
+                       },
+                 },
+                 Subject: {
+                     Data: config.mailer.subject,
+                 }
+            },
+            Source: config.email, /* required */
         };
 
-        transporter.sendMail(settings, (error, info) => {
+        ses.sendEmail(params, function(error, data) {
             if (error) console.log(error.message, prop, recipients);
         });
     }
