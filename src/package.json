@@ -1,0 +1,13 @@
+{
+  "name": "tasks",
+  "version": "0.0.0",
+  "dependencies": {
+      "ajv": "4.8.2",
+      "moment": "^2.16.0",
+      "guid": "^0.0.12",
+      "dynamodb-doc": "^1.0.0",
+      "aws-sdk": "^2.7.0",
+      "nodemailer": "^2.6.4",
+      "nodemailer-direct-transport": "^3.3.2"
+  }
+}
