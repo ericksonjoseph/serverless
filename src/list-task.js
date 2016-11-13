@@ -1,38 +1,21 @@
+
 'use strict';
 
-var doc = require('dynamodb-doc');
-const config = require('./config.js');
+const doc = require('dynamodb-doc');
 const dynamo = new doc.DynamoDB();
+const App = require('./task-manager.js');
 
 /**
- * List User(s)
+ * List Task(s)
  */
 exports.handler = (event, context, callback) => {
 
-    let params = {
-        TableName : config.tableName
-    };
+    let task = JSON.parse(event.body);
+    let taskId = null;
 
     if (event.pathParameters && event.pathParameters.id !== undefined) {
-        params.FilterExpression = '#id = :id';
-        params.ExpressionAttributeValues = {':id' : event.pathParameters.id};
-        params.ExpressionAttributeNames = {'#id' : 'id'};
+        taskId = event.pathParameters.id;
     }
 
-    try {
-        dynamo.scan(params, (err, res) => {
-
-            let body = err ? err.message : JSON.stringify(res);
-
-            context.succeed({
-                statusCode: err ? '500' : '200',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body
-            });
-        });
-    } catch (err) {
-        respond({ error: err.message }, '500');
-    }
+    App.getTask(taskId, dynamo, context.succeed);
 };

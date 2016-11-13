@@ -3,9 +3,10 @@ ROLE := arn:aws:iam::307997508224:role/lambda-kinesis
 PROFILE := work
 LOG := invoke.log
 REGION := us-east-1
-#PACKAGES := $(shell go list ./... | grep -v /vendor/)
+CURRENT_DIR = $(shell pwd)
 
 .DEFAULT: help
+.IGNORE: clean
 
 all: help
 
@@ -37,16 +38,22 @@ dependencies:
 	npm install
 
 zip:
-	zip -r $(NAME).zip $(NAME).js node_modules package.json schema.js config.js common.js mailer.js
+	zip -r $(NAME).zip $(NAME).js node_modules package.json schema.js config.js common.js mailer.js task-manager.js
 
+# TARGET:test              Call the lambda remotely
 test:
 	aws lambda invoke \
 		--invocation-type RequestResponse \
 		--function-name $(NAME) \
 		--region $(REGION) \
-		--payload file://$(NAME).event \
+		--payload file://../events/$(NAME).event \
 		--profile $(PROFILE) \
 		$(LOG)
+
+# TARGET:clean              Clean
+clean:
+	rm $(CURRENT_DIR)/*.zip
+	rm $(CURRENT_DIR)/$(LOG)
 
 # TARGET:help               Help
 help:

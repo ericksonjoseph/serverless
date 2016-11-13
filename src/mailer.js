@@ -2,7 +2,6 @@
 'use strict';
 
 const aws = require('aws-sdk');
-const config = require('./config.js');
 
 /**
  * Sends Emails
@@ -10,41 +9,43 @@ const config = require('./config.js');
  * @var emails object - e.g. { user: "user@example.com", description: "emailitem" }
  * @var callback - called after all emails have been sent
  */
-exports.sendEmails = (emails, callback) => {
+exports.sendEmails = (config, emails, callback) => {
 
-    aws.config.update({region: 'us-east-1'});
+    aws.config.update({region: config.region});
     let ses = new aws.SES();
 
     // Get Recipients
     let recipients = {};
-    emails.Items.forEach((obj, idx) => {
+    emails.forEach((obj, idx) => {
         if (!("user" in obj) || !("description" in obj)) return;
-        recipients[obj.user] += `<li>${obj.description}</li>`;
+        if (!recipients[obj.user]) recipients[obj.user] = '';
+        recipients[obj.user] += `${obj.description}.<br>`;
     });
 
     if (config.test) {
-        callback(null, { message: "Emails Sent (dev mode)", recipients: Object.keys(recipients) }, '200');
+        callback(null, { message: "(Testing) Emails Sent", recipients: Object.keys(recipients) });
         return;
     }
 
     for (let prop in recipients) {
-        var params = {
-            Destination: { 
-                 ToAddresses: [
-                     prop,
-                 ]
+
+        let params = {
+            "Destination": { 
+                "ToAddresses": [
+                    prop,
+                ]
             },
-            Message: {
-                 Body: {
-                     Html: {
-                           Data: recipients[prop],
-                       },
-                 },
-                 Subject: {
-                     Data: config.mailer.subject,
-                 }
+            "Message": {
+                "Body": {
+                    "Html": {
+                        "Data": "<h2>" + config.note + "</h2><ul>" + recipients[prop] + "</ul>",
+                    },
+                },
+                "Subject": {
+                    "Data": config.subject,
+                }
             },
-            Source: config.email, /* required */
+            "Source": config.email,
         };
 
         ses.sendEmail(params, function(error, data) {
@@ -53,5 +54,5 @@ exports.sendEmails = (emails, callback) => {
     }
 
     // Quickly respond
-    callback(null, { message: "Emails Sent", recipients: Object.keys(recipients) }, '200');
+    callback(null, { message: "Emails Sent", recipients: Object.keys(recipients) });
 }
