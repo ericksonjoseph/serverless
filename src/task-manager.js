@@ -36,7 +36,7 @@ module.exports = app;
                     a._respond(callback, {error: err.message}, HTTP_ERROR);
                     return;
                 }
-                a._respond(callback, JSON.stringify(res), HTTP_OK);
+                a._respond(callback, res, HTTP_OK);
             });
         } catch (err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
