@@ -7,7 +7,7 @@
       "guid": "^0.0.12",
       "dynamodb-doc": "^1.0.0",
       "aws-sdk": "^2.7.0",
-      "nodemailer": "^2.6.4",
-      "nodemailer-direct-transport": "^3.3.2"
+      "express": "^4.14.0",
+      "body-parser": "^1.15.2"
   }
 }

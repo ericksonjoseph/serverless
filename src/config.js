@@ -2,6 +2,7 @@ exports.tableName = 'tasks'
 exports.primary_key = 'id'
 exports.email = 'erickson1.joseph@gmail.com'
 exports.transport = 'Gmail'
+exports.port = 3000
 exports.mailer = {
     test: true,
     subject: "Daily Task Manager",
