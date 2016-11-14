@@ -6,19 +6,26 @@ CURRENT_DIR = $(shell pwd)
 ZIP = node_modules package.json *.js
 
 .DEFAULT: help
-.IGNORE: clean
+.IGNORE: clean dependencies
 
 all: help
 
-# TARGET:build              Zip up the lambda
+# TARGET:build              Zip up the lambdas
 build: zip
 
+# TARGET:deploy             Deploy the app
 deploy: clean dependencies build
 	terraform apply
 
+# TARGET:run                Run app in express
+run:
+	node main.js
+
+# TARGET:destroy            Tear down infrastructure
 destroy:
 	terraform destroy
 
+# TARGET:dependencies       npm install
 dependencies:
 	rm -r node_modules
 	npm install

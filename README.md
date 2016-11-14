@@ -6,12 +6,19 @@ Simple Task Manager App
 Usage
 -----
 
-Install the aws command line tool for your system. Navigate to the src folder and run:
+Install and configure the aws cli. Navigate to the src folder and run the following.
+
+Using Express
+```
+$ make dependencies
+$ make run
+```
+Or using terraform
 
 ```
 $ make deploy
 ```
-this will build the app and deploy the services using terraform
+This will build the app, download dependencies, and deploy the lambdas & services.
 
 
 To tear down the infrastructure use:
@@ -26,7 +33,8 @@ Frameworks
 Express
 
 ```
-$ node main.js
+$ make dependencies
+$ make run
 ```
 
 This will launch a local server to test the api
