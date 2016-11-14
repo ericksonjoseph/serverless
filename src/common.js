@@ -21,10 +21,10 @@ exports.validateParams = (task, schema) => {
     let validator = new ajv();
     let validate = validator.compile(schema);
     if (!validate(task)) {
-        return false;
+        return validate.errors;
     }
 
-    return true;
+    return false;
 }
 
 exports.buildPrimaryKeyFilter = (primaryKey, taskId) => {
@@ -62,8 +62,8 @@ exports.buildUpdateParams = (task, schema) => {
     // Prepare Payload
     return {
         UpdateExpression: updateExpression,
-            ExpressionAttributeValues: values,
-            ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+        ExpressionAttributeNames: names,
     };
 }
 

@@ -4,6 +4,7 @@ PROFILE := work
 LOG := invoke.log
 REGION := us-east-1
 CURRENT_DIR = $(shell pwd)
+ZIP = node_modules package.json *.js
 
 .DEFAULT: help
 .IGNORE: clean
@@ -23,7 +24,6 @@ create: build
 
 # TARGET:update             Update
 update: build
-	make build
 	aws lambda update-function-code \
 		--function-name $(NAME)  \
 		--zip-file fileb://$(NAME).zip \
@@ -33,12 +33,22 @@ update: build
 # TARGET:build              Zip up the lambda
 build: zip
 
+apply: clean dependencies build
+	terraform apply
+
+destroy:
+	terraform destroy
+
 dependencies:
 	rm -r node_modules
 	npm install
 
 zip:
-	zip -r $(NAME).zip $(NAME).js node_modules package.json schema.js config.js common.js mailer.js task-manager.js
+	zip -r daily.zip daily.js $(ZIP)
+	zip -r add-task.zip add-task.js $(ZIP)
+	zip -r list-task.zip list-task.js $(ZIP)
+	zip -r update-task.zip update-task.js $(ZIP)
+	zip -r delete-task.zip delete-task.js $(ZIP)
 
 # TARGET:test              Call the lambda remotely
 test:

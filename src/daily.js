@@ -1,8 +1,8 @@
 'use strict';
 
 var doc = require('dynamodb-doc');
-const dynamo = new doc.DynamoDB();
-const App = require('./task-manager.js');
+var dynamo = new doc.DynamoDB();
+var App = require('./task-manager.js');
 
 /**
  * Cron

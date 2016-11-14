@@ -17,15 +17,17 @@ module.exports = app;
 
     const PRIMARY_KEY = config.primary_key;
     const HTTP_OK = '200';
+    const HTTP_CREATED = '201';
     const HTTP_ERROR = '500';
     const HTTP_BAD = '400';
+    const HTTP_ACCEPTED = '202';
 
     a.getTask = (taskId, dynamo, callback) => {
 
         let params = {};
 
         if (taskId !== null) {
-            let params = common.buildPrimaryKeyFilter(PRIMARY_KEY, taskId);
+            params = common.buildPrimaryKeyFilter(PRIMARY_KEY, taskId);
         }
 
         params.TableName = config.tableName;
@@ -36,7 +38,11 @@ module.exports = app;
                     a._respond(callback, {error: err.message}, HTTP_ERROR);
                     return;
                 }
-                a._respond(callback, res, HTTP_OK);
+                a._respond(callback, {
+                    message: "Tasks",
+                    items: res.Items,
+                    total: res.Count
+                }, HTTP_OK);
             });
         } catch (err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
@@ -62,7 +68,7 @@ module.exports = app;
                     a._respond(callback, {error: err.message}, HTTP_ERROR);
                     return;
                 }
-                a._respond(callback, res, HTTP_OK);
+                a._respond(callback, { message: "Delete Request Successful" }, HTTP_OK);
             });
         } catch (err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
@@ -72,8 +78,9 @@ module.exports = app;
     a.createTask = (task, dynamo, callback) => {
 
         // Validate params
-        if (!common.validateParams(task, schemas.default)) {
-            a._respond(callback, { error: validate.errors }, HTTP_BAD);
+        let errors = common.validateParams(task, schemas.default);
+        if (errors) {
+            a._respond(callback, { error: errors }, HTTP_BAD);
             return;
         }
 
@@ -84,7 +91,8 @@ module.exports = app;
         // Prepare Payload
         let params = {
             Item: task,
-            TableName: config.tableName
+            TableName: config.tableName,
+            ReturnValues: "ALL_OLD"
         };
 
         try {
@@ -93,7 +101,10 @@ module.exports = app;
                     a._respond(callback, {error: err.message}, HTTP_ERROR);
                     return;
                 }
-                a._respond(callback, res, HTTP_OK);
+                a._respond(callback, { 
+                    message: "Task Created", 
+                    task: task 
+                }, HTTP_CREATED);
             });
         } catch (err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
@@ -113,8 +124,9 @@ module.exports = app;
         schema.required = undefined;
 
         // Validate params
-        if (!common.validateParams(task, schema)){
-            a._respond(callback, { error: validate.errors }, HTTP_BAD);
+        let errors = common.validateParams(task, schema);
+        if (errors){
+            a._respond(callback, { error: errors }, HTTP_BAD);
             return;
         }
 
@@ -128,6 +140,7 @@ module.exports = app;
         params.Key = {}
         params.Key[PRIMARY_KEY] = taskId;
         params.TableName = config.tableName;
+        params.ReturnValues = "UPDATED_NEW";
 
         try {
             dynamo.updateItem(params, (err, res) => {
@@ -135,7 +148,10 @@ module.exports = app;
                     a._respond(callback, {error: err.message}, HTTP_ERROR);
                     return;
                 }
-                a._respond(callback, res, HTTP_OK);
+                a._respond(callback, {
+                    messsage: "Task Updated",
+                    updates: res.Attributes
+                }, HTTP_OK);
             });
         } catch (err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
@@ -168,7 +184,7 @@ module.exports = app;
                         a._respond(callback, { error: err.message }, HTTP_ERROR);
                         return;
                     }
-                    a._respond(callback, body, HTTP_OK);
+                    a._respond(callback, body, HTTP_ACCEPTED);
                 });
             });
         } catch (err) {

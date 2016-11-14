@@ -1,4 +1,6 @@
 node_modules
+*.tfstate
+*.tfstate.backup
 *.zip
 *.log
 *.swp

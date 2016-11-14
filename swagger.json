@@ -4,7 +4,7 @@
     "version": "2016-11-14T04:13:23Z",
     "title": "example-lambda"
   },
-  "host": "gxycwz3hi2.execute-api.us-east-1.amazonaws.com",
+  "host": "ynahh7ermj.execute-api.us-east-1.amazonaws.com",
   "basePath": "/stage",
   "schemes": [
     "https"
@@ -24,15 +24,15 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:daily/invocations",
           "responses": {
             "default": {
               "statusCode": "200"
             }
           },
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
+          "type": "aws_proxy"
         }
       }
     },
@@ -50,15 +50,39 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:list-task/invocations",
           "responses": {
             "default": {
               "statusCode": "200"
             }
           },
+          "type": "aws_proxy"
+        }
+      },
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
           "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:add-task/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "type": "aws_proxy"
         }
       }
     },
@@ -84,47 +108,15 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:list-task/invocations",
           "responses": {
             "default": {
               "statusCode": "200"
             }
           },
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
-        }
-      },
-      "post": {
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "schema": {
-              "$ref": "#/definitions/Empty"
-            }
-          }
-        },
-        "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
-          "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:add-task/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
+          "type": "aws_proxy"
         }
       },
       "put": {
@@ -148,15 +140,15 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:update-task/invocations",
           "responses": {
             "default": {
               "statusCode": "200"
             }
           },
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
+          "type": "aws_proxy"
         }
       },
       "delete": {
@@ -180,15 +172,15 @@
           }
         },
         "x-amazon-apigateway-integration": {
-          "type": "aws_proxy",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
           "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:307997508224:function:delete-task/invocations",
           "responses": {
             "default": {
               "statusCode": "200"
             }
           },
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST"
+          "type": "aws_proxy"
         }
       }
     }

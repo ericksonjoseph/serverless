@@ -1,12 +1,17 @@
 'use strict';
 
 var doc = require('dynamodb-doc');
-const dynamo = new doc.DynamoDB();
-//const dynamo = require('./mockDynamo');
+const AWS = require('aws-sdk');
 const App = require('./task-manager.js');
 const config = require('./config');
 const express = require('express');
 const bodyParser = require('body-parser');
+
+AWS.config.update({
+      region: config.region,
+});
+
+const dynamo = new doc.DynamoDB();
 
 /**
  * Server
@@ -41,9 +46,9 @@ app.get('/task/:id?', function (req, res) {
     });
 })
 
-app.put('/task', jsonParser, function (req, res) {
+app.put('/task/:id', jsonParser, function (req, res) {
 
-    App.createTask(req.body, dynamo, (response) => {
+    App.updateTask(req.params.id, req.body, dynamo, (response) => {
         respond(res, response);
     });
 })
