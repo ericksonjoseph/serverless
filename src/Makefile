@@ -1,5 +1,4 @@
 NAME := daily
-ROLE := arn:aws:iam::307997508224:role/lambda-kinesis
 PROFILE := work
 LOG := invoke.log
 REGION := us-east-1
@@ -11,29 +10,10 @@ ZIP = node_modules package.json *.js
 
 all: help
 
-# TARGET:create             Create
-create: build
-	aws lambda create-function \
-		--region $(REGION) \
-		--function-name $(NAME)  \
-		--zip-file fileb://$(NAME).zip \
-		--role $(ROLE) \
-		--handler $(NAME).handler \
-		--runtime nodejs4.3 \
-		--profile $(PROFILE)
-
-# TARGET:update             Update
-update: build
-	aws lambda update-function-code \
-		--function-name $(NAME)  \
-		--zip-file fileb://$(NAME).zip \
-		--profile $(PROFILE) \
-		--region $(REGION)
-
 # TARGET:build              Zip up the lambda
 build: zip
 
-apply: clean dependencies build
+deploy: clean dependencies build
 	terraform apply
 
 destroy:

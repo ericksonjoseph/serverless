@@ -41,21 +41,27 @@ app.post('/task', jsonParser, function (req, res) {
 
 app.get('/task/:id?', function (req, res) {
 
-    App.getTask(req.params.id, dynamo, (response) => {
+    let id = req.params.id || null;
+
+    App.getTask(id, dynamo, (response) => {
         respond(res, response);
     });
 })
 
 app.put('/task/:id', jsonParser, function (req, res) {
 
-    App.updateTask(req.params.id, req.body, dynamo, (response) => {
+    let id = req.params.id || null;
+
+    App.updateTask(id, req.body, dynamo, (response) => {
         respond(res, response);
     });
 })
 
 app.delete('/task/:id', function (req, res) {
 
-    App.deleteTask(req.params.id, dynamo, (response) => {
+    let id = req.params.id || null;
+
+    App.deleteTask(id, dynamo, (response) => {
         respond(res, response);
     });
 })
