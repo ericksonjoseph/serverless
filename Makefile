@@ -2,7 +2,7 @@ NAME := daily
 PROFILE := work
 LOG := invoke.log
 REGION := us-east-1
-CURRENT_DIR = $(shell pwd)
+ROOT = $(shell pwd)/src/
 ZIP = node_modules package.json *.js
 
 .DEFAULT: help
@@ -19,7 +19,8 @@ deploy: clean dependencies build
 
 # TARGET:run                Run app in express
 run:
-	node main.js
+	cd $(ROOT) \
+		&& node main.js
 
 # TARGET:destroy            Tear down infrastructure
 destroy:
@@ -27,15 +28,17 @@ destroy:
 
 # TARGET:dependencies       npm install
 dependencies:
-	rm -r node_modules
-	npm install
+	cd $(ROOT) \
+		&& rm -r $(ROOT)node_modules; \
+		npm install
 
 zip:
-	zip -r daily.zip daily.js $(ZIP)
-	zip -r add-task.zip add-task.js $(ZIP)
-	zip -r list-task.zip list-task.js $(ZIP)
-	zip -r update-task.zip update-task.js $(ZIP)
-	zip -r delete-task.zip delete-task.js $(ZIP)
+	cd $(ROOT) && \
+		zip -r daily.zip daily.js $(ZIP); \
+		zip -r add-task.zip add-task.js $(ZIP); \
+		zip -r list-task.zip list-task.js $(ZIP); \
+		zip -r update-task.zip update-task.js $(ZIP); \
+		zip -r delete-task.zip delete-task.js $(ZIP)
 
 # TARGET:test              Call the lambda remotely
 test:
@@ -49,8 +52,16 @@ test:
 
 # TARGET:clean              Clean
 clean:
-	rm $(CURRENT_DIR)/*.zip
-	rm $(CURRENT_DIR)/$(LOG)
+	cd $(ROOT) \
+		&& rm *.zip; \
+		rm $(LOG)
+
+delete_functions:
+	aws lambda delete-function --function-name daily; \
+	aws lambda delete-function --function-name add-task; \
+	aws lambda delete-function --function-name list-task; \
+	aws lambda delete-function --function-name update-task; \
+	aws lambda delete-function --function-name delete-task; \
 
 # TARGET:help               Help
 help:

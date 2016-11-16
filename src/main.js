@@ -1,6 +1,6 @@
 'use strict';
 
-var doc = require('dynamodb-doc');
+const doc = require('dynamodb-doc');
 const AWS = require('aws-sdk');
 const App = require('./task-manager.js');
 const config = require('./config');
@@ -11,7 +11,11 @@ AWS.config.update({
       region: config.region,
 });
 
+
+AWS.config.dynamodb = { endpoint: config.dynamodb.endpoint };
+
 const dynamo = new doc.DynamoDB();
+
 
 /**
  * Server

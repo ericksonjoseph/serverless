@@ -1,11 +1,16 @@
+variable "root" {
+    type = "string"
+    default = "src/"
+}
+
 provider "aws" {
   region = "us-east-1"
 }
 
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
   name           = "tasks"
-  read_capacity  = 20
-  write_capacity = 20
+  read_capacity  = 1
+  write_capacity = 1
   hash_key       = "id"
 
   attribute {
@@ -35,46 +40,46 @@ EOF
 }
 
 resource "aws_lambda_function" "daily" {
-  filename         = "./daily.zip"
+  filename         = "${var.root}daily.zip"
   function_name    = "daily"
   role             = "${aws_iam_role.lambda.arn}"
   handler          = "daily.handler"
-  source_code_hash = "${base64sha256(file("./daily.zip"))}"
+  source_code_hash = "${base64sha256(file("${var.root}daily.zip"))}"
   runtime          = "nodejs4.3"
 }
 
 resource "aws_lambda_function" "add-task" {
-  filename         = "./add-task.zip"
+  filename         = "${var.root}add-task.zip"
   function_name    = "add-task"
   role             = "${aws_iam_role.lambda.arn}"
   handler          = "add-task.handler"
-  source_code_hash = "${base64sha256(file("./add-task.zip"))}"
+  source_code_hash = "${base64sha256(file("${var.root}add-task.zip"))}"
   runtime          = "nodejs4.3"
 }
 
 resource "aws_lambda_function" "list-task" {
-  filename         = "./list-task.zip"
+  filename         = "${var.root}list-task.zip"
   function_name    = "list-task"
   role             = "${aws_iam_role.lambda.arn}"
   handler          = "list-task.handler"
-  source_code_hash = "${base64sha256(file("./list-task.zip"))}"
+  source_code_hash = "${base64sha256(file("${var.root}list-task.zip"))}"
   runtime          = "nodejs4.3"
 }
 
 resource "aws_lambda_function" "update-task" {
-  filename         = "./update-task.zip"
+  filename         = "${var.root}update-task.zip"
   function_name    = "update-task"
   role             = "${aws_iam_role.lambda.arn}"
   handler          = "update-task.handler"
-  source_code_hash = "${base64sha256(file("./update-task.zip"))}"
+  source_code_hash = "${base64sha256(file("${var.root}update-task.zip"))}"
   runtime          = "nodejs4.3"
 }
 
 resource "aws_lambda_function" "delete-task" {
-  filename         = "./delete-task.zip"
+  filename         = "${var.root}delete-task.zip"
   function_name    = "delete-task"
   role             = "${aws_iam_role.lambda.arn}"
   handler          = "delete-task.handler"
-  source_code_hash = "${base64sha256(file("./delete-task.zip"))}"
+  source_code_hash = "${base64sha256(file("${var.root}delete-task.zip"))}"
   runtime          = "nodejs4.3"
 }
