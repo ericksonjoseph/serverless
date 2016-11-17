@@ -70,6 +70,16 @@ app.delete('/task/:id', function (req, res) {
     });
 })
 
+app.get('*', function(req, res) {
+
+    respond(res, {
+        statusCode: 404,
+        body: {
+            error: "Not Found"
+        }
+    })
+})
+
 app.listen(config.port, function () {
     console.log(`Example app listening on port ${config.port}!`)
 })

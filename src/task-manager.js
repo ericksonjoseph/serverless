@@ -16,6 +16,7 @@ module.exports = app;
 (function(a){
 
     const PRIMARY_KEY = config.primary_key;
+    const TABLE_NAME = config.tableName;
     const HTTP_OK = '200';
     const HTTP_CREATED = '201';
     const HTTP_ERROR = '500';
@@ -30,23 +31,26 @@ module.exports = app;
             params = common.buildPrimaryKeyFilter(PRIMARY_KEY, taskId);
         }
 
-        params.TableName = config.tableName;
+        params.TableName = TABLE_NAME;
 
-        try {
+        new Promise(function(resolve, reject) {
+
             dynamo.scan(params, (err, res) => {
                 if (err) {  
-                    a._respond(callback, {error: err.message}, HTTP_ERROR);
-                    return;
+                    return reject(err);
                 }
-                a._respond(callback, {
+                resolve({
                     message: "Tasks",
                     items: res.Items,
                     total: res.Count
-                }, HTTP_OK);
+                });
             });
-        } catch (err) {
+
+        }).then(function(body) {
+            a._respond(callback, body, HTTP_OK);
+        }).catch(function(err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
-        }
+        })
     }
 
     a.deleteTask = (taskId, dynamo, callback) => {
@@ -59,20 +63,22 @@ module.exports = app;
         // Prepare Payload
         let params = {
             Key: { id: taskId },
-            TableName: config.tableName
+            TableName: TABLE_NAME
         };
 
-        try {
+        new Promise(function(resolve, reject) {
+
             dynamo.deleteItem(params, (err, res) => {
                 if (err) {  
-                    a._respond(callback, {error: err.message}, HTTP_ERROR);
-                    return;
+                    return reject(err);
                 }
-                a._respond(callback, { message: "Delete Request Successful" }, HTTP_OK);
+                resolve({ message: "Delete Request Successful" });
             });
-        } catch (err) {
+        }).then(function(body) {
+            a._respond(callback, body, HTTP_OK);
+        }).catch(function(err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
-        }
+        })
     }
 
     a.createTask = (task, dynamo, callback) => {
@@ -91,24 +97,26 @@ module.exports = app;
         // Prepare Payload
         let params = {
             Item: task,
-            TableName: config.tableName,
+            TableName: TABLE_NAME,
             ReturnValues: "ALL_OLD"
         };
 
-        try {
+        new Promise(function(resolve, reject) {
+
             dynamo.putItem(params, (err, res) => {
                 if (err) {  
-                    a._respond(callback, {error: err.message}, HTTP_ERROR);
-                    return;
+                    return reject(err);
                 }
-                a._respond(callback, { 
+                resolve({ 
                     message: "Task Created", 
                     task: task 
-                }, HTTP_CREATED);
+                });
             });
-        } catch (err) {
+        }).then(function(body) {
+            a._respond(callback, body, HTTP_OK);
+        }).catch(function(err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
-        }
+        })
     }
 
     a.updateTask = (taskId, task, dynamo, callback) => {
@@ -139,57 +147,59 @@ module.exports = app;
 
         params.Key = {}
         params.Key[PRIMARY_KEY] = taskId;
-        params.TableName = config.tableName;
+        params.TableName = TABLE_NAME;
         params.ReturnValues = "UPDATED_NEW";
 
-        try {
+        new Promise(function(resolve, reject) {
+
             dynamo.updateItem(params, (err, res) => {
                 if (err) {  
-                    a._respond(callback, {error: err.message}, HTTP_ERROR);
-                    return;
+                    return reject({error: err.message});
                 }
-                a._respond(callback, {
+                resolve({
                     messsage: "Task Updated",
                     updates: res.Attributes
-                }, HTTP_OK);
+                });
             });
-        } catch (err) {
+        }).then(function(body) {
+            a._respond(callback, body, HTTP_OK);
+        }).catch(function(err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
-        }
+        })
     }
 
     a.runDailyCron = function(dynamo, callback) {
 
         let params = {
-            TableName : config.tableName,
+            TableName : TABLE_NAME,
             FilterExpression: 'NOT attribute_exists (completed) AND attribute_exists (#user)',
             ExpressionAttributeNames: {'#user' : 'user'}
         };
 
-        try {
+        new Promise(function(resolve, reject) {
+
             dynamo.scan(params, (err, res) => {
 
                 if (err) {  
-                    a._respond(callback, {error: err.message}, HTTP_ERROR);
-                    return;
+                    return reject(err);
                 }
 
                 if (res.Items.length === 0) {
-                    a._respond(callback, { message: 'No emails to send' }, HTTP_OK);
-                    return;
+                    return resolve({ message: 'No emails to send' });
                 }
 
                 mailer.sendEmails(config.mailer, res.Items, (err, body) => {
                     if (err) {
-                        a._respond(callback, { error: err.message }, HTTP_ERROR);
-                        return;
+                        return reject({ error: err.message });
                     }
-                    a._respond(callback, body, HTTP_ACCEPTED);
+                    resolve(body);
                 });
             });
-        } catch (err) {
+        }).then(function(body) {
+            a._respond(callback, body, HTTP_OK);
+        }).catch(function(err) {
             a._respond(callback, { error: err.message }, HTTP_ERROR);
-        }
+        })
     }
 
     a._respond = (callback, body, statusCode) => {
